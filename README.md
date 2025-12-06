@@ -131,17 +131,7 @@ Face Recognition/
 
 ## 4\. Installation and Setup
 
-### Step 1: Hardware Configuration (Critical)
-
-Increase Swap to 2GB to avoid compilation failures:
-
-```bash
-sudo nano /etc/dphys-swapfile
-# Change to: CONF_SWAPSIZE=2048
-sudo /etc/init.d/dphys-swapfile restart
-```
-
-### Step 2: Install Dependencies
+### Step 1: Install Dependencies
 
 ```bash
 cd "Face Recognition"
@@ -149,12 +139,12 @@ chmod +x scripts/*.sh
 ./scripts/install_dependencies.sh
 ```
 
-### Step 3: Training
+### Step 2: Training
 
 1.  Create a folder in `assets/faces/` with the person's name (e.g., `assets/faces/Johan`).
 2.  Upload at least **10 clear photos** of the face.
 
-### Step 4: Compilation
+### Step 3: Compilation
 
 ```bash
 ./scripts/build.sh
