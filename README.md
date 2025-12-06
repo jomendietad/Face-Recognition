@@ -25,7 +25,7 @@ La solución se diseñó modularmente en **C++17** para maximizar el rendimiento
 ```mermaid
 graph TD
     subgraph "Periféricos / Hardware"
-        CAM[Cámara (USB/IP)] -->|Frames Raw| MAIN_THREAD
+        CAM["Cámara (USB/IP)"] -->|Frames Raw| MAIN_THREAD
         MAIN_THREAD -->|Pixeles Directos| HDMI[Salida HDMI / Framebuffer]
     end
 
@@ -54,7 +54,7 @@ graph TD
     MAIN_THREAD -->|Escribe JPEG| MEMORIA
     MEMORIA -->|Lee JPEG| WEB_SERVER
     WEB_SERVER -->|Stream MJPEG| BROWSER
-````
+```
 
 ### Bloque A: Adquisición y Preprocesamiento
 
