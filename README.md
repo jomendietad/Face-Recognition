@@ -123,7 +123,7 @@ DemoProyecto/
 ├── scripts/
 │   ├── install_dependencies.sh # Instala librerías y modelos
 │   ├── build.sh                # Compila el ejecutable (limpia caché)
-│   └── run_demo.sh             # Script de arranque (detecta permisos)
+│   └── run.sh             # Script de arranque (detecta permisos)
 ├── logs/                # Historial de accesos en CSV
 └── README.md            # Documentación
 ```
@@ -176,11 +176,11 @@ Para pruebas o depuración en tiempo real:
 
   * **Con Cámara USB:**
     ```bash
-    ./scripts/run_demo.sh
+    ./scripts/run.sh
     ```
   * **Con Stream Remoto (Pruebas de Red):**
     ```bash
-    ./scripts/run_demo.sh "[http://192.168.1.50:5000/video_feed](http://192.168.1.50:5000/video_feed)"
+    ./scripts/run.sh "[http://192.168.1.50:5000/video_feed](http://192.168.1.50:5000/video_feed)"
     ```
 
 ### Acceso Web
@@ -210,7 +210,7 @@ Para que el sistema funcione como una cámara de seguridad autónoma al enchufar
     Type=simple
     User=root
     WorkingDirectory=/home/johan/DemoProyecto
-    ExecStart=/bin/bash /home/johan/DemoProyecto/scripts/run_demo.sh
+    ExecStart=/bin/bash /home/johan/DemoProyecto/scripts/run.sh
     Restart=always
     RestartSec=5
     StandardOutput=journal
@@ -227,7 +227,7 @@ Para que el sistema funcione como una cámara de seguridad autónoma al enchufar
     ```
 
 > **⚠️ NOTA IMPORTANTE SOBRE EL CICLO DE VIDA:**
-> El servicio `face_access.service` únicamente se encarga de **EJECUTAR** el programa ya compilado (`run_demo.sh`).
+> El servicio `face_access.service` únicamente se encarga de **EJECUTAR** el programa ya compilado (`run.sh`).
 > El servicio **NO compila** el código. Si realizas cambios en `src/sistema_final.cpp`, debes:
 >
 > 1.  Detener el servicio: `sudo systemctl stop face_access.service`
