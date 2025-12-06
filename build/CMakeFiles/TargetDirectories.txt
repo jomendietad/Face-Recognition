@@ -1,0 +1,3 @@
+/home/johanm/Descargas/DemoProyecto/build/CMakeFiles/sistema_final.dir
+/home/johanm/Descargas/DemoProyecto/build/CMakeFiles/edit_cache.dir
+/home/johanm/Descargas/DemoProyecto/build/CMakeFiles/rebuild_cache.dir

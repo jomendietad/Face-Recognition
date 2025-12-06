@@ -1,0 +1,14 @@
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found OpenCV: /usr (found version "4.5.4") 
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/jaime_mejiah0425/ProgramacionDeSistemasEmbebidos/DemoProyecto/build
+[ 50%] Building CXX object CMakeFiles/demo_face.dir/demo_face.cpp.o
+[100%] Linking CXX executable demo_face
+[100%] Built target demo_face
+[OK] Build completed. Binaries in: /home/jaime_mejiah0425/ProgramacionDeSistemasEmbebidos/DemoProyecto/build
