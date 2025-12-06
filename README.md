@@ -1,166 +1,160 @@
-# Sistema de Videovigilancia y Reconocimiento Facial Embebido (RPI Zero 2W)
+# Embedded Face Recognition and Video Surveillance System (RPI Zero 2W)
 
-Este repositorio contiene la implementación de un sistema de seguridad inteligente diseñado para operar en hardware de recursos limitados, optimizado específicamente para la **Raspberry Pi Zero 2W**. El sistema integra visión artificial, procesamiento concurrente y transmisión de video en red, funcionando de manera autónoma ("Headless") y segura.
-
----
-
-## 1. Definición del Problema
-
-El desarrollo de sistemas de reconocimiento facial suele requerir hardware costoso (GPUs, procesadores de alto rendimiento). El desafío de este proyecto fue **implementar un sistema de reconocimiento biométrico funcional en tiempo real sobre un dispositivo de bajo coste y bajo consumo (Single Board Computer)**, gestionando recursos limitados (512MB RAM) y operando sin periféricos.
-
-**Retos principales abordados:**
-* **Escasez de Memoria:** Gestión estricta de recursos y Swap para compilación y ejecución.
-* **Latencia:** Procesamiento de video y streaming simultáneo sin bloqueo.
-* **Entorno Headless:** Operación autónoma sin monitor, con interfaz web universal.
-* **Seguridad:** Autenticación robusta sin bases de datos vulnerables.
+This repository contains the implementation of an intelligent security system designed to operate on limited-resource hardware, specifically optimized for the **Raspberry Pi Zero 2W**. The system integrates computer vision, concurrent processing, and network video streaming, operating in an autonomous ("Headless") and secure manner.
 
 ---
 
-## 2. Arquitectura y Solución Técnica
+## 1. Problem Definition
 
-La solución se diseñó modularmente en **C++17** para maximizar el rendimiento, utilizando programación multihilo (`std::thread`) para desacoplar la visión artificial de la transmisión de red.
+Developing face recognition systems typically requires expensive hardware (GPUs, high-performance processors). The challenge of this project was to **implement a functional, real-time biometric recognition system on a low-cost, low-power device (Single Board Computer)**, managing limited resources (512MB RAM) and operating without peripherals.
 
-### Diagrama de Arquitectura del Sistema
+**Key Challenges Addressed:**
+* **Memory Scarcity:** Strict resource and Swap management required for compilation and execution.
+* **Latency:** Simultaneous video processing and streaming without blocking.
+* **Headless Environment:** Autonomous operation without a monitor, featuring a universal web interface.
+* **Security:** Robust authentication without relying on vulnerable database files.
+
+---
+
+## 2. Architecture and Technical Solution
+
+The solution was modularly designed in **C++17** to maximize performance, utilizing multi-threaded programming (`std::thread`) to decouple computer vision from network transmission.
+
+### System Architecture Diagram
 
 ```mermaid
 graph TD
-    subgraph "Periféricos / Hardware"
-        CAM["Cámara (USB/IP)"] -->|Frames Raw| MAIN_THREAD
-        MAIN_THREAD -->|Pixeles Directos| HDMI[Salida HDMI / Framebuffer]
+    subgraph "Peripherals / Hardware"
+        CAM["Camera (USB/IP)"] -->|Raw Frames| MAIN_THREAD
+        MAIN_THREAD -->|Direct Pixels| HDMI[HDMI Output / Framebuffer]
     end
 
     subgraph "Raspberry Pi Zero 2W (Software)"
         direction TB
         
-        subgraph "Hilo Principal (Procesamiento)"
-            MAIN_THREAD[Captura & Visión]
+        subgraph "Main Thread (Processing)"
+            MAIN_THREAD[Capture & Vision]
             OPENCV[OpenCV: Haar + LBPH]
             MAIN_THREAD <--> OPENCV
         end
 
-        MEMORIA[(Memoria Compartida<br>Mutex Protegido)]
+        MEMORIA[(Shared Memory<br>Mutex Protected)]
 
-        subgraph "Hilo Secundario (Red)"
-            WEB_SERVER[Servidor Web TCP]
+        subgraph "Secondary Thread (Network)"
+            WEB_SERVER[TCP Web Server]
             PAM[Linux PAM Auth]
-            WEB_SERVER -.->|Valida Credenciales| PAM
+            WEB_SERVER -.->|Validate Credentials| PAM
         end
     end
 
-    subgraph "Cliente Remoto"
-        BROWSER[Navegador Web]
+    subgraph "Remote Client"
+        BROWSER[Web Browser]
     end
 
-    MAIN_THREAD -->|Escribe JPEG| MEMORIA
-    MEMORIA -->|Lee JPEG| WEB_SERVER
-    WEB_SERVER -->|Stream MJPEG| BROWSER
+    MAIN_THREAD -->|Writes JPEG| MEMORIA
+    MEMORIA -->|Reads JPEG| WEB_SERVER
+    WEB_SERVER -->|MJPEG Stream| BROWSER
 ```
 
-### Bloque A: Adquisición y Preprocesamiento
+### Block A: Acquisition and Preprocessing
 
-  * **Entrada Flexible:** El sistema acepta tanto cámaras físicas (índice `0`) como flujos de red (`http://...`, `rtsp://...`).
-  * **Optimización:** Redimensionamiento a **640x480** y limitación a **15 FPS** para estabilidad térmica y de CPU.
+  * **Flexible Input:** The system accepts both physical cameras (index `0`) and network streams (`http://...`).
+  * **Optimization:** Resizing to **640x480** and limiting to **15 FPS** for thermal stability.
 
-### Bloque B: Núcleo de Visión Artificial
+### Block B: Computer Vision Core
 
-  * **Detección (Haar Cascades):** Algoritmo rápido y ligero para localizar rostros.
-  * **Reconocimiento (LBPH):** *Local Binary Patterns Histograms*. Entrena un modelo al inicio con las fotos en `assets/faces/` para identificar personas ("Johan" vs "Desconocido") con un nivel de confianza calculado.
+  * **Detection (Haar Cascades):** Fast and lightweight algorithm for locating faces.
+  * **Recognition (LBPH):** *Local Binary Patterns Histograms*. Trains a model at startup using photos in `assets/faces/` to identify individuals ("Johan" vs. "Unknown").
 
-### Bloque C: Interfaz Web y Streaming
+### Block C: Web Interface and Streaming
 
-  * **Protocolo MJPEG:** Transmisión de video mediante `multipart/x-mixed-replace`, compatible con cualquier navegador moderno sin plugins.
-  * **Sincronización:** Uso de `std::mutex` para proteger el acceso a la memoria de video compartida entre el hilo de captura y el servidor web.
+  * **MJPEG Protocol:** Video transmission via `multipart/x-mixed-replace`.
+  * **Synchronization:** Use of `std::mutex` to protect access to shared memory.
 
-### Bloque D: Seguridad (Linux PAM)
+### Block D: Security (Linux PAM)
 
-  * **Autenticación Real:** Validación de credenciales contra los usuarios del sistema operativo (`/etc/shadow`) usando `security/pam_appl.h`. El acceso a la web requiere usuario y contraseña reales de la Raspberry Pi.
+  * **Real Authentication:** Validates credentials against the operating system users (`/etc/shadow`) using `security/pam_appl.h`.
 
-### Diagrama de Flujo de Datos
+### Data Flow Diagram
 
 ```mermaid
 sequenceDiagram
-    participant Cam as Cámara
-    participant Main as Hilo Principal
-    participant Shared as Memoria (Mutex)
-    participant Web as Hilo Web
-    participant User as Usuario Remoto
+    participant Cam as Camera
+    participant Main as Main Thread
+    participant Shared as Memory (Mutex)
+    participant Web as Web Thread
+    participant User as Remote User
 
-    Note over Main: Inicio del Sistema
-    Main->>Main: Cargar Haar & Entrenar LBPH
+    Note over Main: System Start (Daemon)
+    Main->>Main: Load Haar & Train LBPH
     
-    loop Bucle de Video (15 FPS)
-        Cam->>Main: Frame Nuevo
-        Main->>Main: Detectar Caras
-        Main->>Main: Reconocer & Dibujar
-        Main->>Main: Comprimir a JPEG
-        Main->>Shared: Actualizar Frame Global (Lock)
+    loop Video Loop (15 FPS)
+        Cam->>Main: New Frame
+        Main->>Main: Detect & Recognize
+        Main->>Main: Compress to JPEG
+        Main->>Shared: Update Global Frame (Lock)
     end
 
     User->>Web: GET /video_feed
-    Web->>Web: Verificar Usuario (PAM)
+    Web->>Web: Verify User (PAM)
     
-    loop Streaming Web
-        Web->>Shared: Leer Frame Global (Lock)
-        Shared-->>Web: Datos JPEG
-        Web-->>User: Enviar Parte MJPEG (--frame)
+    loop Web Streaming
+        Web->>Shared: Read Global Frame (Lock)
+        Shared-->>Web: JPEG Data
+        Web-->>User: Send MJPEG Part
     end
 ```
 
 -----
 
-## 3\. Estructura del Proyecto
+## 3\. Project Structure
 
 ```text
-DemoProyecto/
+Face Recognition/
 ├── assets/
-│   ├── haarcascades/    # Modelos de detección (descarga automática)
-│   └── faces/           # BASE DE DATOS DE ROSTROS
-│       ├── Johan/       # Carpeta con 10 fotos de Johan
-│       └── Visitante/   # Otras carpetas...
+│   ├── haarcascades/    # Detection models (auto-download)
+│   └── faces/           # FACE DATABASE
+│       ├── Johan/       # Folder with 10 photos of Johan
+│       └── Visitante/   # Other folders...
 ├── src/
-│   ├── sistema_final.cpp # Código fuente principal
-│   └── CMakeLists.txt    # Configuración de compilación
+│   ├── sistema_final.cpp # Main source code
+│   └── CMakeLists.txt    # Compilation configuration
 ├── scripts/
-│   ├── install_dependencies.sh # Instala librerías y modelos
-│   ├── build.sh                # Compila el ejecutable (limpia caché)
-│   └── run.sh             # Script de arranque (detecta permisos)
-├── logs/                # Historial de accesos en CSV
-└── README.md            # Documentación
+│   ├── install_dependencies.sh # Installs libraries
+│   ├── build.sh                # Compiles the executable
+│   └── run.sh                  # Startup script (Daemon Entrypoint)
+├── logs/                # Access history in CSV
+└── README.md            # Documentation
 ```
 
 -----
 
-## 4\. Instalación y Puesta en Marcha
+## 4\. Installation and Setup
 
-### Paso 1: Configuración de Hardware (Crítico para Pi Zero 2W)
+### Step 1: Hardware Configuration (Critical)
 
-Antes de nada, aumenta el archivo de intercambio (Swap) para evitar que la compilación falle por falta de RAM:
+Increase Swap to 2GB to avoid compilation failures:
 
 ```bash
 sudo nano /etc/dphys-swapfile
-# Cambiar la línea a: CONF_SWAPSIZE=2048
+# Change to: CONF_SWAPSIZE=2048
 sudo /etc/init.d/dphys-swapfile restart
 ```
 
-### Paso 2: Instalación de Dependencias
-
-Ejecuta el script de preparación. Instalará compiladores, OpenCV (+contrib), GStreamer y corregirá dependencias obsoletas.
+### Step 2: Install Dependencies
 
 ```bash
-cd DemoProyecto
+cd "Face Recognition"
 chmod +x scripts/*.sh
 ./scripts/install_dependencies.sh
 ```
 
-### Paso 3: Entrenamiento (Carga de Rostros)
+### Step 3: Training
 
-1.  Crea una carpeta en `assets/faces/` con el nombre de la persona (ej. `assets/faces/Johan`).
-2.  Sube al menos **10 fotos** claras del rostro de esa persona.
-3.  El sistema entrenará el modelo automáticamente al arrancar.
+1.  Create a folder in `assets/faces/` with the person's name (e.g., `assets/faces/Johan`).
+2.  Upload at least **10 clear photos** of the face.
 
-### Paso 4: Compilación
-
-Genera el ejecutable binario:
+### Step 4: Compilation
 
 ```bash
 ./scripts/build.sh
@@ -168,49 +162,54 @@ Genera el ejecutable binario:
 
 -----
 
-## 5\. Ejecución y Uso
+## 5\. Execution and Usage
 
-### Modo Manual
+### Manual Mode
 
-Para pruebas o depuración en tiempo real:
+For direct testing:
 
-  * **Con Cámara USB:**
+  * **With USB Camera:**
     ```bash
     ./scripts/run.sh
     ```
-  * **Con Stream Remoto (Pruebas de Red):**
+  * **With Remote Stream (IP):**
     ```bash
     ./scripts/run.sh "[http://192.168.1.50:5000/video_feed](http://192.168.1.50:5000/video_feed)"
     ```
 
-### Acceso Web
+### Web Access
 
-Desde cualquier PC o móvil en la misma red:
+From any browser on the network:
 
-  * **URL:** `http://<IP_RASPBERRY>:8080`
-  * **Login:** Tu usuario y contraseña de la Raspberry (ej. `johan` / `*****`).
+  * **URL:** `http://<RASPBERRY_IP>:8080`
+  * **Login:** Your Linux user and password (e.g., `johan` / `*****`).
 
 -----
 
-## 6\. Automatización (Servicio Systemd)
+## 6\. Automation (Daemon Service)
 
-Para que el sistema funcione como una cámara de seguridad autónoma al enchufarla:
+To run the system as a Daemon (`face_access.service`) on startup:
 
-1.  **Crear servicio:**
+1.  **Create service file:**
+
     ```bash
     sudo nano /etc/systemd/system/face_access.service
     ```
-2.  **Contenido:**
+
+2.  **File Content:**
+    *(Note the use of quotes to handle spaces in the folder name)*
+
     ```ini
     [Unit]
-    Description=Sistema de Control de Acceso Facial
+    Description=Face Recognition System (Daemon)
     After=network.target video.target
 
     [Service]
     Type=simple
     User=root
-    WorkingDirectory=/home/johan/DemoProyecto
-    ExecStart=/bin/bash /home/johan/DemoProyecto/scripts/run.sh
+    # Adjust path if user is not 'johan'
+    WorkingDirectory="/home/johan/Face Recognition"
+    ExecStart=/bin/bash "/home/johan/Face Recognition/scripts/run.sh"
     Restart=always
     RestartSec=5
     StandardOutput=journal
@@ -219,58 +218,52 @@ Para que el sistema funcione como una cámara de seguridad autónoma al enchufar
     [Install]
     WantedBy=multi-user.target
     ```
-3.  **Activar:**
+
+3.  **Activate:**
+
     ```bash
     sudo systemctl daemon-reload
     sudo systemctl enable face_access.service
     sudo systemctl start face_access.service
     ```
 
-> **⚠️ NOTA IMPORTANTE SOBRE EL CICLO DE VIDA:**
-> El servicio `face_access.service` únicamente se encarga de **EJECUTAR** el programa ya compilado (`run.sh`).
-> El servicio **NO compila** el código. Si realizas cambios en `src/sistema_final.cpp`, debes:
->
-> 1.  Detener el servicio: `sudo systemctl stop face_access.service`
-> 2.  Compilar manualmente: `./scripts/build.sh`
-> 3.  Iniciar el servicio: `sudo systemctl start face_access.service`
+> **⚠️ NOTE ON LIFECYCLE:**
+> The service only executes the compiled binary. If you modify code in `src/`, you must stop the service and run `./scripts/build.sh` manually.
 
 -----
 
-## 7\. Plan de Pruebas y Resultados
+## 7\. Test Plan and Results
 
-  * **Latencia:** \~300-500ms en red local (aceptable para vigilancia).
-  * **Estabilidad:** Operación continua validada por 4h+ sin fugas de memoria.
-  * **Recuperación:** Reinicio automático en \<5s tras fallo de cámara o red.
-  * **Headless:** Detección automática de ausencia de monitor para desactivar salida HDMI y evitar errores.
-
------
-
-## 8\. Análisis de Limitaciones de los Modelos
-
-Dadas las restricciones de hardware (CPU ARMv8 limitada y sin NPU/GPU dedicada), se seleccionaron algoritmos clásicos sobre Deep Learning. Es crucial entender sus limitaciones operativas:
-
-### Haar Cascades (Detección)
-
-  * **Sensibilidad a la Rotación:** El clasificador `frontalface_default` es estrictamente para rostros frontales. Si el sujeto gira la cabeza más de \~30 grados o la inclina lateralmente, la detección fallará.
-  * **Falsos Positivos:** En entornos con texturas complejas o sombras duras, puede detectar objetos inanimados como rostros. Se mitigó ajustando el parámetro `minNeighbors` a 4.
-  * **Iluminación:** Es sensible a cambios drásticos de luz (contraluz fuerte), lo que puede impedir la detección inicial.
-
-### LBPH (Reconocimiento)
-
-  * **Dependencia de Datos:** A diferencia de las redes neuronales (CNN) que extraen características profundas ("embeddings"), LBPH compara histogramas de píxeles locales. Esto significa que requiere que las fotos de entrenamiento tengan una iluminación y pose similares a las condiciones reales de operación.
-  * **Confianza Heurística:** El valor de "confianza" devuelto es una distancia euclidiana, no una probabilidad porcentual. Valores bajos (\<50) son mejores, pero el umbral de corte debe calibrarse empíricamente según la luz del entorno.
-  * **Escalabilidad:** El tiempo de entrenamiento y predicción crece linealmente con el número de usuarios, lo que lo hace ideal para pocas personas (1-5) pero ineficiente para grandes bases de datos en este hardware.
+  * **Latency:** \~300-500ms on local network.
+  * **Stability:** \>4 hours continuous operation with no memory leaks.
+  * **Recovery:** Automatic restart (Daemon) in \<5s after failure.
+  * **Headless:** Automatic detection of monitor absence.
 
 -----
 
-## 9\. Tecnologías Utilizadas
+## 8\. Limitations Analysis
 
-  * **Lenguaje:** C++17 (GCC 11.4)
-  * **Visión:** OpenCV 4.6.0 (Core, ObjDetect, Face, HighGUI)
-  * **Seguridad:** Linux PAM
-  * **Build:** CMake 3.22
+Given hardware constraints (limited ARMv8 CPU), classic algorithms were selected:
+
+### Haar Cascades (Detection)
+
+  * **Rotation Sensitivity:** Only detects frontal faces (max \~30° rotation).
+  * **Lighting:** Sensitive to strong backlighting.
+
+### LBPH (Recognition)
+
+  * **Data Dependency:** Requires training lighting to match operational conditions.
+  * **Scalability:** Efficient for few people (1-5), computation time grows linearly with more users.
+
+-----
+
+## 9\. Technologies
+
+  * **Language:** C++17 (GCC 11.4)
+  * **Vision:** OpenCV 4.6.0
+  * **Security:** Linux PAM
   * **OS:** Raspberry Pi OS Lite (64-bit)
 
 -----
 
-*Proyecto desarrollado para la asignatura de Programación de Sistemas Linux Embebidos - Universidad Nacional de Colombia.*
+*Project developed for the Embedded Linux Systems Programming course - Universidad Nacional de Colombia.*
