@@ -25,7 +25,7 @@ fi
 # Framebuffer access (/dev/fb0) and PAM authentication usually 
 # require root privileges. We auto-elevate using sudo if needed.
 if [ "$EUID" -ne 0 ]; then
-  echo "Warning: This demo requires root privileges for Framebuffer/PAM."
+  echo "Warning: This system requires root privileges for Framebuffer/PAM."
   echo "Elevating permissions (sudo)..."
   exec sudo "$0" "$@"
   exit
@@ -34,7 +34,7 @@ fi
 # ------------------------------------------------------------------
 # EXECUTION
 # ------------------------------------------------------------------
-echo "Starting Face Access Demo (Headless Mode)..."
+echo "Starting Face Access System (Headless Mode)..."
 echo "Camera Index: ${CAM_INDEX}"
 echo "Web Server Port: 8080"
 
