@@ -231,37 +231,44 @@ FramebufferInfo init_fb() {
 }
 
 // ---------------------------------------------------------
-// ENTRENAMIENTO DE MODELO
+// CARGA DEL MODELO Y NOMBRES
 // ---------------------------------------------------------
-void train_recognizer(cv::Ptr<cv::face::LBPHFaceRecognizer> &model, const std::string &faces_dir) {
-    std::vector<cv::Mat> images;
-    std::vector<int> labels;
-    int current_id = 1;
+bool load_resources(cv::Ptr<cv::face::LBPHFaceRecognizer> &model) {
+    std::string model_path = "assets/lbph_model.yml";
+    std::string labels_path = "assets/labels.csv";
 
-    if (!fs::exists(faces_dir)) {
-        fs::create_directories(faces_dir);
-        return;
-    }
-
-    std::cout << "Training model..." << std::endl;
-    for (const auto & entry : fs::directory_iterator(faces_dir)) {
-        if (entry.is_directory()) {
-            std::string person_name = entry.path().filename().string();
-            label_to_name[current_id] = person_name;
-            for (const auto & img_entry : fs::directory_iterator(entry.path())) {
-                if (img_entry.path().extension() == ".jpg" || img_entry.path().extension() == ".png") {
-                    cv::Mat img = cv::imread(img_entry.path().string(), cv::IMREAD_GRAYSCALE);
-                    if (!img.empty()) { images.push_back(img); labels.push_back(current_id); }
-                }
-            }
-            std::cout << "Loaded " << person_name << " (ID: " << current_id << ")" << std::endl;
-            current_id++;
+    // 1. Cargar modelo binario
+    if (fs::exists(model_path)) {
+        try {
+            model->read(model_path);
+            std::cout << "Model loaded from " << model_path << std::endl;
+        } catch (const cv::Exception& e) {
+            std::cerr << "Error loading model: " << e.what() << std::endl;
+            return false;
         }
+    } else {
+        std::cerr << "Warning: Model file not found (" << model_path << "). Recognition disabled." << std::endl;
+        return false; // Sin modelo no hay reconocimiento, solo detección
     }
-    if (!images.empty()) {
-        model->train(images, labels);
-        std::cout << "Training complete!" << std::endl;
+
+    // 2. Cargar nombres (Labels)
+    std::ifstream label_file(labels_path);
+    if (label_file.is_open()) {
+        std::string line;
+        while (std::getline(label_file, line)) {
+            size_t comma_pos = line.find(',');
+            if (comma_pos != std::string::npos) {
+                int id = std::stoi(line.substr(0, comma_pos));
+                std::string name = line.substr(comma_pos + 1);
+                label_to_name[id] = name;
+            }
+        }
+        std::cout << "Labels loaded: " << label_to_name.size() << " people." << std::endl;
+    } else {
+        std::cerr << "Warning: Labels file not found. IDs will be shown instead of names." << std::endl;
     }
+    
+    return true;
 }
 
 // ---------------------------------------------------------
@@ -289,7 +296,7 @@ int main(int argc, char** argv) {
     if (!face_detector.load(cascade_path)) { std::cerr << "Error cascade." << std::endl; return 1; }
 
     cv::Ptr<cv::face::LBPHFaceRecognizer> recognizer = cv::face::LBPHFaceRecognizer::create();
-    train_recognizer(recognizer, faces_dir);
+    bool model_loaded = load_resources(recognizer);
 
     FramebufferInfo fb = init_fb();
     std::thread web_thread(web_server_thread);
@@ -317,11 +324,11 @@ int main(int argc, char** argv) {
             std::string name = "Desconocido";
             cv::Scalar color = cv::Scalar(0, 0, 255);
 
-            if (!label_to_name.empty()) {
+            if (model_loaded && !label_to_name.empty()) {
                 cv::Mat face_roi = gray(face);
                 try {
                     recognizer->predict(face_roi, label, confidence);
-                    if (confidence < 80) {
+                    if (confidence < 90) {
                         name = label_to_name[label];
                         color = cv::Scalar(0, 255, 0);
                     }

@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/johanm/Descargas/DemoProyecto/src
+CMAKE_SOURCE_DIR = "/home/johanm/Descargas/Face Recognition/src"
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/johanm/Descargas/DemoProyecto/build
+CMAKE_BINARY_DIR = "/home/johanm/Descargas/Face Recognition/build"
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/johanm/Descargas/DemoProyecto/build/CMakeFiles /home/johanm/Descargas/DemoProyecto/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start "/home/johanm/Descargas/Face Recognition/build/CMakeFiles" "/home/johanm/Descargas/Face Recognition/build//CMakeFiles/progress.marks"
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/johanm/Descargas/DemoProyecto/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start "/home/johanm/Descargas/Face Recognition/build/CMakeFiles" 0
 .PHONY : all
 
 # The main clean target
@@ -129,6 +129,19 @@ sistema_final/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sistema_final.dir/build.make CMakeFiles/sistema_final.dir/build
 .PHONY : sistema_final/fast
 
+#=============================================================================
+# Target rules for targets named train_model
+
+# Build rule for target.
+train_model: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 train_model
+.PHONY : train_model
+
+# fast build rule for target.
+train_model/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/train_model.dir/build.make CMakeFiles/train_model.dir/build
+.PHONY : train_model/fast
+
 sistema_final.o: sistema_final.cpp.o
 .PHONY : sistema_final.o
 
@@ -153,6 +166,30 @@ sistema_final.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sistema_final.dir/build.make CMakeFiles/sistema_final.dir/sistema_final.cpp.s
 .PHONY : sistema_final.cpp.s
 
+train_model.o: train_model.cpp.o
+.PHONY : train_model.o
+
+# target to build an object file
+train_model.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/train_model.dir/build.make CMakeFiles/train_model.dir/train_model.cpp.o
+.PHONY : train_model.cpp.o
+
+train_model.i: train_model.cpp.i
+.PHONY : train_model.i
+
+# target to preprocess a source file
+train_model.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/train_model.dir/build.make CMakeFiles/train_model.dir/train_model.cpp.i
+.PHONY : train_model.cpp.i
+
+train_model.s: train_model.cpp.s
+.PHONY : train_model.s
+
+# target to generate assembly for a file
+train_model.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/train_model.dir/build.make CMakeFiles/train_model.dir/train_model.cpp.s
+.PHONY : train_model.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -162,9 +199,13 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... sistema_final"
+	@echo "... train_model"
 	@echo "... sistema_final.o"
 	@echo "... sistema_final.i"
 	@echo "... sistema_final.s"
+	@echo "... train_model.o"
+	@echo "... train_model.i"
+	@echo "... train_model.s"
 .PHONY : help
 
 

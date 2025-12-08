@@ -1,3 +1,4 @@
-/home/johanm/Descargas/DemoProyecto/build/CMakeFiles/sistema_final.dir
-/home/johanm/Descargas/DemoProyecto/build/CMakeFiles/edit_cache.dir
-/home/johanm/Descargas/DemoProyecto/build/CMakeFiles/rebuild_cache.dir
+/home/johanm/Descargas/Face Recognition/build/CMakeFiles/sistema_final.dir
+/home/johanm/Descargas/Face Recognition/build/CMakeFiles/train_model.dir
+/home/johanm/Descargas/Face Recognition/build/CMakeFiles/edit_cache.dir
+/home/johanm/Descargas/Face Recognition/build/CMakeFiles/rebuild_cache.dir

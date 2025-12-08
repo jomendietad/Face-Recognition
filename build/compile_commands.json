@@ -1,8 +1,0 @@
-[
-{
-  "directory": "/home/johanm/Descargas/DemoProyecto/build",
-  "command": "/usr/bin/g++ -DLOG_DIR=\\\"/home/johanm/Descargas/DemoProyecto/src/logs\\\" -isystem /usr/include/opencv4 -g -std=gnu++17 -o CMakeFiles/sistema_final.dir/sistema_final.cpp.o -c /home/johanm/Descargas/DemoProyecto/src/sistema_final.cpp",
-  "file": "/home/johanm/Descargas/DemoProyecto/src/sistema_final.cpp",
-  "output": "CMakeFiles/sistema_final.dir/sistema_final.cpp.o"
-}
-]
