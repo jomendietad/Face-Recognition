@@ -1,7 +1,9 @@
 # Embedded Face Recognition and Video Surveillance System (RPI Zero 2W)
 
-**Version:** 3.0 (Offline Training & Log Rotation Support)  
+**Version:** 3.0 (Offline Training & Log Rotation Support)
+  
 **Target Hardware:** Raspberry Pi Zero 2W (ARM Cortex-A53)
+
 **Developers:** Johan Sebastian Mendieta Dilbert, Jaime Mejia Herrera
 
 This repository hosts a high-performance, intelligent security system designed specifically for extreme resource-constrained environments. It implements a full biometric pipeline (Detection, Recognition, and Network Streaming) using a custom **C++ Monolithic Architecture** to maximize efficiency on the Raspberry Pi Zero 2W (512MB RAM).
