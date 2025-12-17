@@ -166,7 +166,7 @@ void handle_client(int client_socket) {
                            "img{border: 2px solid #0f0; max-width:100%;}"
                            "pre{background:#333; padding:10px; text-align:left; max-height:300px; overflow:auto;}"
                            "</style></head><body>"
-                           "<h1>🔴 Live Secure Feed</h1>"
+                           "<h1> Live Secure Feed</h1>"
                            "<img src='/video_feed' alt='Live Stream' /><br>" // AQUÍ SE CARGA EL VIDEO
                            "<h3>Access Logs</h3>"
                            "<pre>" + logs + "</pre>"

@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/johanm/Descargas/Face Recognition/src/sistema_final.cpp" "CMakeFiles/sistema_final.dir/sistema_final.cpp.o" "gcc" "CMakeFiles/sistema_final.dir/sistema_final.cpp.o.d"
+  "/home/johanm/Linux Embebidos/Face Recognition/src/sistema_final.cpp" "CMakeFiles/sistema_final.dir/sistema_final.cpp.o" "gcc" "CMakeFiles/sistema_final.dir/sistema_final.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

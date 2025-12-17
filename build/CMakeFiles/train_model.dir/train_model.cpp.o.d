@@ -1,5 +1,5 @@
 CMakeFiles/train_model.dir/train_model.cpp.o: \
- /home/johanm/Descargas/Face\ Recognition/src/train_model.cpp \
+ /home/johanm/Linux\ Embebidos/Face\ Recognition/src/train_model.cpp \
  /usr/include/stdc-predef.h /usr/include/opencv4/opencv2/opencv.hpp \
  /usr/include/opencv4/opencv2/opencv_modules.hpp \
  /usr/include/opencv4/opencv2/core.hpp \

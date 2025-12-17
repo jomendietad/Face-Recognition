@@ -1,5 +1,5 @@
 {
-    "cmake.sourceDirectory": "/home/johanm/Descargas/DemoProyecto/src",
+    "cmake.sourceDirectory": "/home/johanm/Linux Embebidos/Face Recognition/src",
     "files.associations": {
         "array": "cpp",
         "atomic": "cpp",
